@@ -2,6 +2,7 @@ packages:
   - packages/*
 catalog:
   '@mariozechner/pi-coding-agent': ^0.67.68
+  '@mariozechner/pi-tui': ^0.67.68
   '@sinclair/typebox': ^0.34.49
   '@types/node': ^25.6.0
   tsdown: ^0.21.9

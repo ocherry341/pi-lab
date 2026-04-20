@@ -6,9 +6,10 @@ A collection of [pi coding agent](https://github.com/badlogic/pi-mono) extension
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| [@pi-lab/permissions](./packages/permissions) | Permission system — enforce allow / deny / ask rules on tool calls |
+| Package                                           | Description                                                        |
+| ------------------------------------------------- | ------------------------------------------------------------------ |
+| [@pi-lab/permissions](./packages/permissions)     | Permission system — enforce allow / deny / ask rules on tool calls |
+| [@pi-lab/input-history](./packages/input-history) | Cross-session input history — `↑` recalls the last 100 inputs across all sessions in the same project |
 
 ## Install
 
@@ -45,8 +46,12 @@ pi -e ./dist/index.mjs
 
 ```
 packages/
-└── permissions/     # @pi-lab/permissions
-    ├── src/         # TypeScript source
-    ├── dist/        # compiled output (not committed)
+├── permissions/     # @pi-lab/permissions
+│   ├── src/         # TypeScript source
+│   ├── dist/        # compiled output (not committed)
+│   └── package.json
+└── input-history/   # @pi-lab/input-history
+    ├── src/
+    ├── dist/
     └── package.json
 ```

@@ -1,0 +1,31 @@
+{
+  "name": "@pi-lab/input-history",
+  "version": "0.1.0",
+  "description": "Cross-session input history navigation for pi coding agent",
+  "keywords": [
+    "pi-package"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "pi": {
+    "extensions": [
+      "./dist/index.mjs"
+    ]
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@mariozechner/pi-coding-agent": "catalog:",
+    "@mariozechner/pi-tui": "catalog:",
+    "@sinclair/typebox": "catalog:",
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "catalog:"
+  }
+}

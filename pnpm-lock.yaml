@@ -9,6 +9,9 @@ catalogs:
     '@mariozechner/pi-coding-agent':
       specifier: ^0.67.68
       version: 0.67.68
+    '@mariozechner/pi-tui':
+      specifier: ^0.67.68
+      version: 0.67.68
     '@sinclair/typebox':
       specifier: ^0.34.49
       version: 0.34.49
@@ -38,6 +41,21 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+
+  packages/input-history:
+    devDependencies:
+      '@mariozechner/pi-coding-agent':
+        specifier: 'catalog:'
+        version: 0.67.68(ws@8.20.0)(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: 'catalog:'
+        version: 0.67.68
+      '@sinclair/typebox':
+        specifier: 'catalog:'
+        version: 0.34.49
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.21.9(typescript@6.0.3)
 
   packages/permissions:
     devDependencies:
