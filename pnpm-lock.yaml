@@ -18,6 +18,9 @@ catalogs:
     '@types/node':
       specifier: ^25.6.0
       version: 25.6.0
+    minimatch:
+      specifier: ^10.2.5
+      version: 10.2.5
     tsdown:
       specifier: ^0.21.9
       version: 0.21.9
@@ -58,6 +61,10 @@ importers:
         version: 0.21.9(typescript@6.0.3)
 
   packages/permissions:
+    dependencies:
+      minimatch:
+        specifier: 'catalog:'
+        version: 10.2.5
     devDependencies:
       '@mariozechner/pi-coding-agent':
         specifier: 'catalog:'

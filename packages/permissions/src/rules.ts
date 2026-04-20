@@ -1,3 +1,6 @@
+import * as os from "node:os";
+import * as path from "node:path";
+import { minimatch } from "minimatch";
 import { Action, Rule } from "./config";
 
 export const ACTION_ORDER: Record<Action, number> = {
@@ -35,6 +38,29 @@ export function matchesRule(
         if (!value.includes(pattern)) return false;
       }
     }
+  }
+
+  const paths = rule.match.paths;
+  if (paths && paths.length > 0) {
+    const pathKey = rule.match.pathParam ?? "path";
+    if (!(pathKey in input)) return false;
+    const rawValue = String(input[pathKey]);
+    const resolved = path.resolve(rawValue);
+    const matched = paths.some((pattern) => {
+      const expanded = pattern.startsWith("~/") || pattern === "~"
+        ? path.join(os.homedir(), pattern.slice(1))
+        : pattern;
+      const resolvedPattern = path.resolve(expanded);
+      if (expanded.includes("*")) {
+        return minimatch(resolved, resolvedPattern, { dot: true });
+      }
+      // directory prefix: /a/b matches /a/b, /a/b/c but not /a/bc
+      const dir = resolvedPattern.endsWith(path.sep)
+        ? resolvedPattern
+        : resolvedPattern + path.sep;
+      return resolved === resolvedPattern || resolved.startsWith(dir);
+    });
+    if (!matched) return false;
   }
 
   return true;

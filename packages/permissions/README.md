@@ -29,8 +29,15 @@ Rules are loaded from two locations and merged into a single list:
       "action": "ask"
     },
     {
-      "match": { "tool": "*" },
+      "message": "Only allow reading files inside the project",
+      "priority": 10,
+      "match": { "tool": "read", "paths": ["~/projects/my-app/**"] },
       "action": "allow"
+    },
+    {
+      "message": "read is restricted to allowed paths only",
+      "match": { "tool": "read" },
+      "action": "deny"
     }
   ]
 }
@@ -38,13 +45,15 @@ Rules are loaded from two locations and merged into a single list:
 
 ### Rule fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `match.tool` | string | ✓ | Tool name, or `"*"` to match all tools |
-| `match.params` | object | — | Param name → regex pattern. All conditions must match. |
-| `action` | string | ✓ | `allow`, `deny`, or `ask` |
-| `priority` | number | — | Defaults to `0`. Higher values are evaluated first. |
-| `message` | string | — | Reason returned to the LLM when a call is blocked. |
+| Field             | Type     | Required | Description                                                                                                                                                                                             |
+| ----------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `match.tool`      | string   | ✓        | Tool name, or `"*"` to match all tools                                                                                                                                                                  |
+| `match.params`    | object   | —        | Param name → regex pattern. All conditions must match.                                                                                                                                                  |
+| `match.paths`     | string[] | —        | Path patterns the tool's path argument must fall within. Supports glob (`**`, `*`) and plain directory prefixes. Supports `~` expansion. Pairs with a higher-priority `allow` rule to form a whitelist. |
+| `match.pathParam` | string   | —        | Which input key holds the path. Defaults to `"path"`.                                                                                                                                                   |
+| `action`          | string   | ✓        | `allow`, `deny`, or `ask`                                                                                                                                                                               |
+| `priority`        | number   | —        | Defaults to `0`. Higher values are evaluated first.                                                                                                                                                     |
+| `message`         | string   | —        | Reason returned to the LLM when a call is blocked.                                                                                                                                                      |
 
 ### Matching order
 

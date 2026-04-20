@@ -5,6 +5,7 @@ catalog:
   '@mariozechner/pi-tui': ^0.67.68
   '@sinclair/typebox': ^0.34.49
   '@types/node': ^25.6.0
+  minimatch: ^10.2.5
   tsdown: ^0.21.9
   tsx: ^4.21.0
   typescript: ^6.0.3
