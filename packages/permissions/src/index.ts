@@ -24,14 +24,14 @@ export default function (pi: ExtensionAPI) {
 		if (action === "allow") return undefined;
 
 		if (action === "deny") {
-			return { block: true, reason: rule.description ?? "Blocked by permissions" };
+			return { block: true, reason: rule.message ?? "Blocked by permissions" };
 		}
 
 		// action === "ask"
 		const cached = cache.get(event.toolName, input);
 		if (cached === "allow") return undefined;
 		if (cached === "deny") {
-			return { block: true, reason: rule.description ?? "Blocked by permissions" };
+			return { block: true, reason: rule.message ?? "Blocked by permissions" };
 		}
 
 		if (!ctx.hasUI) {
@@ -41,6 +41,6 @@ export default function (pi: ExtensionAPI) {
 		const decision = await askUser(event.toolName, input, cache, ctx);
 		return decision === "allow"
 			? undefined
-			: { block: true, reason: rule.description ?? "Blocked by user" };
+			: { block: true, reason: rule.message ?? "Blocked by user" };
 	});
 }

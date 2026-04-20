@@ -10,7 +10,7 @@ export interface MatchCriteria {
 }
 
 export interface Rule {
-  description?: string;
+  message?: string;
   priority?: number;
   match: MatchCriteria;
   action: Action;

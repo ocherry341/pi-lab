@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
+import { buildTitle } from "./format";
 
 export class SessionCache {
 	private cache: Map<string, "allow" | "deny"> = new Map();
@@ -28,12 +29,7 @@ export async function askUser(
 	cache: SessionCache,
 	ctx: ExtensionContext
 ): Promise<"allow" | "deny"> {
-	const lines = Object.entries(input).map(([key, value]) => {
-		const str = String(value);
-		const truncated = str.length > 80 ? str.slice(0, 80) : str;
-		return `  ${key}: ${truncated}`;
-	});
-	const title = `⚠️  ${toolName}\n${lines.join("\n")}`;
+	const title = buildTitle(toolName, input);
 
 	const result = await ctx.ui.select(title, ["Allow", "Allow always", "Deny", "Deny always"]);
 
