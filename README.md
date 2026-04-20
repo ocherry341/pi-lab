@@ -4,28 +4,22 @@ A collection of [pi coding agent](https://shittycodingagent.ai) extensions, pack
 
 ## Packages
 
-| Package         | Description |
-| --------------- | ----------- |
-| _(coming soon)_ |             |
+| Package | Description |
+|---------|-------------|
+| [@pi-lab/permissions](./packages/permissions) | Permission system — enforce allow / deny / ask rules on tool calls |
 
 ## Install
 
 Each package can be installed individually:
 
 ```bash
-# from npm
-pi install npm:@your-scope/<package-name>
-
-# from git
-pi install git:github.com/your-username/pi-lab@main
+pi install npm:@pi-lab/permissions
 ```
 
-Or install a specific package via project settings (`.pi/settings.json`):
+Or pin to a git ref:
 
-```json
-{
-  "packages": ["npm:@your-scope/<package-name>"]
-}
+```bash
+pi install git:github.com/ocherry341/pi-lab@main
 ```
 
 ## Development
@@ -33,9 +27,24 @@ Or install a specific package via project settings (`.pi/settings.json`):
 ```bash
 pnpm install
 
-# typecheck all extensions
+# type-check all packages
 pnpm typecheck
 
 # test an extension locally without installing
-pi -e ./packages/<name>/extensions/index.ts
+pi -e ./packages/<name>/src/index.ts
+
+# test the compiled output
+cd packages/<name>
+pnpm build
+pi -e ./dist/index.mjs
+```
+
+## Repository structure
+
+```
+packages/
+└── permissions/     # @pi-lab/permissions
+    ├── src/         # TypeScript source
+    ├── dist/        # compiled output (not committed)
+    └── package.json
 ```

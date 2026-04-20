@@ -1,6 +1,6 @@
 # @pi-lab/permissions
 
-Permission system extension for pi coding agent.
+A permission system extension for [pi coding agent](https://shittycodingagent.ai). Intercepts tool calls and enforces allow / deny / ask rules defined in a JSON config file.
 
 ## Install
 
@@ -10,16 +10,16 @@ pi install npm:@pi-lab/permissions
 
 ## Configuration
 
-两个配置文件位置，规则合并后统一按优先级匹配：
+Rules are loaded from two locations and merged into a single list:
 
-- `~/.pi/agent/pi-lab/permissions.json` — 全局
-- `.pi/pi-lab/permissions.json` — 项目
+- `~/.pi/agent/pi-lab/permissions.json` — global
+- `.pi/pi-lab/permissions.json` — project
 
 ```json
 {
   "rules": [
     {
-      "description": "禁止 rm -rf",
+      "message": "Block rm -rf",
       "priority": 10,
       "match": { "tool": "bash", "params": { "command": "rm\\s+-rf" } },
       "action": "deny"
@@ -36,26 +36,27 @@ pi install npm:@pi-lab/permissions
 }
 ```
 
-### Rule 字段
+### Rule fields
 
-| 字段 | 类型 | 必选 | 说明 |
-|------|------|------|------|
-| `match.tool` | string | ✓ | 工具名，`"*"` 匹配所有 |
-| `match.params` | object | - | 参数名 → 正则，所有条件需同时满足 |
-| `action` | string | ✓ | `allow` / `deny` / `ask` |
-| `priority` | number | - | 默认 0，越大越先匹配 |
-| `description` | string | - | 拦截时返回给 LLM 的原因 |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `match.tool` | string | ✓ | Tool name, or `"*"` to match all tools |
+| `match.params` | object | — | Param name → regex pattern. All conditions must match. |
+| `action` | string | ✓ | `allow`, `deny`, or `ask` |
+| `priority` | number | — | Defaults to `0`. Higher values are evaluated first. |
+| `message` | string | — | Reason returned to the LLM when a call is blocked. |
 
-### 匹配顺序
+### Matching order
 
-1. 按 `priority` 降序
-2. 相同 priority：`deny` > `ask` > `allow`
-3. 第一条命中的规则生效，无匹配默认 allow
+1. Rules sorted by `priority` descending
+2. Same priority: `deny` > `ask` > `allow`
+3. First matching rule wins. No match defaults to `allow`.
 
-### ask 模式
+### ask mode
 
-弹窗提供四个选项：
-- **Allow** — 允许本次
-- **Allow always** — 会话内相同调用都允许（不持久化）
-- **Deny** — 拒绝本次
-- **Deny always** — 会话内相同调用都拒绝（不持久化）
+A dialog prompts the user with four options:
+
+- **Allow** — allow this call once
+- **Allow always** — allow identical calls for the rest of the session (not persisted)
+- **Deny** — deny this call once
+- **Deny always** — deny identical calls for the rest of the session (not persisted)
