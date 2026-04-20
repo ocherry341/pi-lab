@@ -8,12 +8,16 @@
   "license": "MIT",
   "pi": {
     "extensions": [
-      "./src"
+      "./dist"
     ]
+  },
+  "scripts": {
+    "build": "tsdown"
   },
   "devDependencies": {
     "@mariozechner/pi-coding-agent": "catalog:",
-    "@sinclair/typebox": "catalog:"
+    "@sinclair/typebox": "catalog:",
+    "tsdown": "catalog:"
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "catalog:",
