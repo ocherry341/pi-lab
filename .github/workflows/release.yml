@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/*/package.json'
+
+jobs:
+  detect:
+    name: Detect version changes
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.detect.outputs.matrix }}
+      has_changes: ${{ steps.detect.outputs.has_changes }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed packages
+        id: detect
+        run: |
+          PACKAGES=()
+          for pkg_json in packages/*/package.json; do
+            pkg_name=$(basename $(dirname $pkg_json))
+
+            OLD=$(git show HEAD~1:$pkg_json 2>/dev/null | jq -r '.version // empty')
+            NEW=$(jq -r '.version' $pkg_json)
+
+            if [ -n "$NEW" ] && [ "$OLD" != "$NEW" ]; then
+              echo "  $pkg_name: $OLD → $NEW"
+              PACKAGES+=("$pkg_name")
+            fi
+          done
+
+          if [ ${#PACKAGES[@]} -eq 0 ]; then
+            echo "No version changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            MATRIX=$(printf '%s\n' "${PACKAGES[@]}" | jq -R . | jq -sc '{package: .}')
+            echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+  publish:
+    name: Publish ${{ matrix.package }}
+    needs: detect
+    if: needs.detect.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      matrix: ${{ fromJson(needs.detect.outputs.matrix) }}
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm --filter "./packages/${{ matrix.package }}" build
+
+      - name: Publish
+        run: pnpm --filter "./packages/${{ matrix.package }}" publish --provenance --no-git-checks
