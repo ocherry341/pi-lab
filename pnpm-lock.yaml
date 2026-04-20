@@ -6,6 +6,12 @@ settings:
 
 catalogs:
   default:
+    '@mariozechner/pi-coding-agent':
+      specifier: ^0.67.68
+      version: 0.67.68
+    '@sinclair/typebox':
+      specifier: ^0.34.49
+      version: 0.34.49
     '@types/node':
       specifier: ^25.6.0
       version: 25.6.0
@@ -37,6 +43,15 @@ importers:
         version: 0.67.68(ws@8.20.0)(zod@4.3.6)
       '@sinclair/typebox':
         specifier: '*'
+        version: 0.34.49
+
+  packages/permissions:
+    devDependencies:
+      '@mariozechner/pi-coding-agent':
+        specifier: 'catalog:'
+        version: 0.67.68(ws@8.20.0)(zod@4.3.6)
+      '@sinclair/typebox':
+        specifier: 'catalog:'
         version: 0.34.49
 
 packages:
