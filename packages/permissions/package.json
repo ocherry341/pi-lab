@@ -1,8 +1,10 @@
 {
   "name": "@pi-lab/permissions",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Permission system extension for pi coding agent",
-  "keywords": ["pi-package"],
+  "keywords": [
+    "pi-package"
+  ],
   "license": "MIT",
   "author": "ocherry341",
   "homepage": "https://github.com/ocherry341/pi-lab/tree/main/packages/permissions",
@@ -15,7 +17,10 @@
     "url": "https://github.com/ocherry341/pi-lab/issues"
   },
   "type": "module",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "pi": {
     "extensions": [
       "./dist"
