@@ -73,7 +73,7 @@ jobs:
         run: pnpm --filter "./packages/${{ matrix.package }}" build
 
       - name: Publish
-        run: pnpm --filter "./packages/${{ matrix.package }}" publish --provenance --no-git-checks
+        run: pnpm --filter "./packages/${{ matrix.package }}" publish --provenance --no-git-checks --access public
 
       - name: Get version
         id: version
