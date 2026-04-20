@@ -59,3 +59,12 @@ pi -e ./packages/<name>/dist/index.mjs
 - **After adding a new sub-package**, run `pnpm install` from the root to register the workspace link.
 - **Plugin API types** are defined by the pi documentation; consult it for available events and `ctx` types.
 - **Existing plugins** (e.g. `packages/permissions`) serve as structural references for new plugins.
+
+### Plugin Persistence Paths
+
+Plugins that persist data to disk should store files under `.pi/pi-lab/`:
+
+| Scope  | Path |
+|--------|------|
+| Global | `~/.pi/agent/pi-lab/` |
+| Local  | `<cwd>/.pi/pi-lab/` |
