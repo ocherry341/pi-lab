@@ -6,6 +6,16 @@
     "pi-package"
   ],
   "license": "MIT",
+  "author": "ocherry341",
+  "homepage": "https://github.com/ocherry341/pi-lab/tree/main/packages/input-history",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ocherry341/pi-lab.git",
+    "directory": "packages/input-history"
+  },
+  "bugs": {
+    "url": "https://github.com/ocherry341/pi-lab/issues"
+  },
   "type": "module",
   "files": [
     "dist",
