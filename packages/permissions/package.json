@@ -8,12 +8,14 @@
   "homepage": "https://github.com/ocherry341/pi-lab/tree/main/packages/permissions",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ocherry341/pi-lab.git",
+    "url": "git+https://github.com/ocherry341/pi-lab.git",
     "directory": "packages/permissions"
   },
   "bugs": {
     "url": "https://github.com/ocherry341/pi-lab/issues"
   },
+  "type": "module",
+  "files": ["dist", "README.md"],
   "pi": {
     "extensions": [
       "./dist"
