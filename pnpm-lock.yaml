@@ -36,15 +36,6 @@ importers:
         specifier: 'catalog:'
         version: 6.0.3
 
-  packages/_template:
-    dependencies:
-      '@mariozechner/pi-coding-agent':
-        specifier: '*'
-        version: 0.67.68(ws@8.20.0)(zod@4.3.6)
-      '@sinclair/typebox':
-        specifier: '*'
-        version: 0.34.49
-
   packages/permissions:
     devDependencies:
       '@mariozechner/pi-coding-agent':
