@@ -28,7 +28,7 @@ export default function (pi: ExtensionAPI) {
 		}
 
 		// action === "ask"
-		const cached = cache.get(rule);
+		const cached = cache.get(event.toolName, input);
 		if (cached === "allow") return undefined;
 		if (cached === "deny") {
 			return { block: true, reason: rule.description ?? "Blocked by permissions" };
@@ -38,7 +38,7 @@ export default function (pi: ExtensionAPI) {
 			return { block: true, reason: "ask rule requires UI" };
 		}
 
-		const decision = await askUser(event.toolName, input, rule, cache, ctx);
+		const decision = await askUser(event.toolName, input, cache, ctx);
 		return decision === "allow"
 			? undefined
 			: { block: true, reason: rule.description ?? "Blocked by user" };

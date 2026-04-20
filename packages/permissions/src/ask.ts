@@ -1,19 +1,20 @@
-import { Rule } from "./config";
+import { createHash } from "node:crypto";
 import { ExtensionContext } from "@mariozechner/pi-coding-agent";
 
 export class SessionCache {
 	private cache: Map<string, "allow" | "deny"> = new Map();
 
-	key(rule: Rule): string {
-		return JSON.stringify(rule.match);
+	private callKey(toolName: string, input: Record<string, unknown>): string {
+		const raw = JSON.stringify({ tool: toolName, input });
+		return createHash("sha256").update(raw).digest("hex");
 	}
 
-	get(rule: Rule): "allow" | "deny" | undefined {
-		return this.cache.get(this.key(rule));
+	get(toolName: string, input: Record<string, unknown>): "allow" | "deny" | undefined {
+		return this.cache.get(this.callKey(toolName, input));
 	}
 
-	set(rule: Rule, decision: "allow" | "deny"): void {
-		this.cache.set(this.key(rule), decision);
+	set(toolName: string, input: Record<string, unknown>, decision: "allow" | "deny"): void {
+		this.cache.set(this.callKey(toolName, input), decision);
 	}
 
 	clear(): void {
@@ -24,7 +25,6 @@ export class SessionCache {
 export async function askUser(
 	toolName: string,
 	input: Record<string, unknown>,
-	rule: Rule,
 	cache: SessionCache,
 	ctx: ExtensionContext
 ): Promise<"allow" | "deny"> {
@@ -38,10 +38,10 @@ export async function askUser(
 	const result = await ctx.ui.select(title, ["Allow", "Allow always", "Deny", "Deny always"]);
 
 	if (result === "Allow always") {
-		cache.set(rule, "allow");
+		cache.set(toolName, input, "allow");
 		return "allow";
 	} else if (result === "Deny always") {
-		cache.set(rule, "deny");
+		cache.set(toolName, input, "deny");
 		return "deny";
 	} else if (result === "Allow") {
 		return "allow";
