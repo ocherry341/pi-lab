@@ -34,8 +34,8 @@ function loadRulesFromFile(filePath: string): Rule[] {
 }
 
 export function loadConfig(cwd: string): PermissionConfig {
-  const globalConfigPath = path.join(os.homedir(), ".pi", "agent", "permissions.json");
-  const localConfigPath = path.join(cwd, ".pi", "permissions.json");
+  const globalConfigPath = path.join(os.homedir(), ".pi", "agent", "pi-lab", "permissions.json");
+  const localConfigPath = path.join(cwd, ".pi", "pi-lab", "permissions.json");
 
   const globalRules = loadRulesFromFile(globalConfigPath);
   const localRules = loadRulesFromFile(localConfigPath);

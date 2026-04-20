@@ -12,8 +12,8 @@ pi install npm:@pi-lab/permissions
 
 两个配置文件位置，规则合并后统一按优先级匹配：
 
-- `~/.pi/agent/permissions.json` — 全局
-- `.pi/permissions.json` — 项目
+- `~/.pi/agent/pi-lab/permissions.json` — 全局
+- `.pi/pi-lab/permissions.json` — 项目
 
 ```json
 {
