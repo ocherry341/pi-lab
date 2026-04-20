@@ -50,7 +50,8 @@ Rules are loaded from two locations and merged into a single list:
 
 1. Rules sorted by `priority` descending
 2. Same priority: `deny` > `ask` > `allow`
-3. First matching rule wins. No match defaults to `allow`.
+
+No match defaults to `allow`.
 
 ### ask mode
 

@@ -1,6 +1,6 @@
 {
   "name": "@pi-lab/permissions",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Permission system extension for pi coding agent",
   "keywords": [
     "pi-package"
@@ -23,7 +23,7 @@
   ],
   "pi": {
     "extensions": [
-      "./dist"
+      "./dist/index.mjs"
     ]
   },
   "scripts": {
