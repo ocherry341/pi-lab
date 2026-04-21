@@ -1,7 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import type { Blocklist } from "./blocklist.js";
 import { normalizeUrl } from "./normalize.js";
 
 // ─── Result types ────────────────────────────────────────────────────────────
@@ -49,14 +48,6 @@ function isSameDomain(a: string, b: string): boolean {
 	}
 }
 
-function getHostname(url: string): string {
-	try {
-		return new URL(url).hostname.toLowerCase();
-	} catch {
-		return "";
-	}
-}
-
 const CONTENT_TYPE_EXTENSIONS: Record<string, string> = {
 	"image/jpeg": ".jpg",
 	"image/png": ".png",
@@ -83,16 +74,10 @@ function extForContentType(contentType: string): string {
  */
 export async function fetchUrl(
 	normalizedUrl: string,
-	blocklist: Blocklist,
 	tempDir: string,
 	signal?: AbortSignal,
 	maxRedirects = 10,
 ): Promise<FetchResult> {
-	// Check original URL against blocklist
-	const hostname = getHostname(normalizedUrl);
-	if (blocklist.isBlocked(hostname)) {
-		throw new Error(`Domain "${hostname}" is blocked by the security blocklist`);
-	}
 
 	let currentUrl = normalizedUrl;
 
@@ -122,13 +107,7 @@ export async function fetchUrl(
 			}
 
 			if (isSameDomain(currentUrl, redirectUrl)) {
-				// Safe to follow: normalize and check blocklist
-				const normalizedRedirect = normalizeUrl(redirectUrl);
-				const redirectHost = getHostname(normalizedRedirect);
-				if (blocklist.isBlocked(redirectHost)) {
-					throw new Error(`Redirect target domain "${redirectHost}" is blocked`);
-				}
-				currentUrl = normalizedRedirect;
+				currentUrl = normalizeUrl(redirectUrl);
 				continue;
 			} else {
 				// Cross-domain: let the LLM decide

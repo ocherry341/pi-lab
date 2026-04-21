@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@mozilla/readability": "catalog:",
+    "fflate": "catalog:",
     "linkedom": "catalog:",
     "lru-cache": "catalog:",
     "turndown": "catalog:"

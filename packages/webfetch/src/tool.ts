@@ -2,7 +2,6 @@ import { Type } from "@sinclair/typebox";
 import { join } from "node:path";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import type { WebFetchConfig } from "./config.js";
-import { Blocklist } from "./blocklist.js";
 import { WebFetchCache } from "./cache.js";
 import { normalizeUrl } from "./normalize.js";
 import { fetchUrl } from "./fetch.js";
@@ -99,14 +98,9 @@ function formatRedirectResult(output: RedirectOutput): string {
 // ─── Tool registration ────────────────────────────────────────────────────────
 
 export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): void {
-	const blocklist = new Blocklist(config.blocklist);
 	const cache = new WebFetchCache(config.cache);
 
-	// Initialize blocklist in background (fail-open on errors)
-	void blocklist.init();
-
 	pi.on("session_shutdown", async () => {
-		blocklist.destroy();
 		cache.clear();
 	});
 
@@ -174,7 +168,7 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 					details: {},
 				});
 
-				const result = await fetchUrl(normalizedUrl, blocklist, tempDir, signal);
+				const result = await fetchUrl(normalizedUrl, tempDir, signal);
 
 				// ── Redirect ──────────────────────────────────────────────────
 				if (result.type === "redirect") {

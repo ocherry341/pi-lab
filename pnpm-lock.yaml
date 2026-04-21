@@ -27,6 +27,9 @@ catalogs:
     '@types/turndown':
       specifier: ^5.0.6
       version: 5.0.6
+    fflate:
+      specifier: ^0.8.2
+      version: 0.8.2
     linkedom:
       specifier: ^0.18.10
       version: 0.18.12
@@ -99,6 +102,9 @@ importers:
       '@mozilla/readability':
         specifier: 'catalog:'
         version: 0.5.0
+      fflate:
+        specifier: 'catalog:'
+        version: 0.8.2
       linkedom:
         specifier: 'catalog:'
         version: 0.18.12
@@ -1207,6 +1213,9 @@ packages:
   fetch-blob@3.2.0:
     resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
     engines: {node: ^12.20 || >= 14.13}
+
+  fflate@0.8.2:
+    resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
 
   file-type@21.3.4:
     resolution: {integrity: sha512-Ievi/yy8DS3ygGvT47PjSfdFoX+2isQueoYP1cntFW1JLYAuS4GD7NUPGg4zv2iZfV52uDyk5w5Z0TdpRS6Q1g==}
@@ -3073,6 +3082,8 @@ snapshots:
     dependencies:
       node-domexception: 1.0.0
       web-streams-polyfill: 3.3.3
+
+  fflate@0.8.2: {}
 
   file-type@21.3.4:
     dependencies:
