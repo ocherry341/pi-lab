@@ -52,7 +52,6 @@ jobs:
     environment: npm
     permissions:
       contents: write
-      id-token: write
     strategy:
       matrix: ${{ fromJson(needs.detect.outputs.matrix) }}
       fail-fast: false
@@ -73,7 +72,9 @@ jobs:
         run: pnpm --filter "./packages/${{ matrix.package }}" build
 
       - name: Publish
-        run: pnpm --filter "./packages/${{ matrix.package }}" publish --provenance --no-git-checks --access public
+        run: pnpm --filter "./packages/${{ matrix.package }}" publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Get version
         id: version
