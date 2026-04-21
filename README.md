@@ -1,6 +1,6 @@
 # pi-lab
 
-> **Unofficial** — This is a personal collection of extensions for [pi coding agent](https://github.com/badlogic/pi-mono). It is not affiliated with or endorsed by the official pi project. For the official repository, see [badlogic/pi-mono](https://github.com/badlogic/pi-mono).
+> This is a personal collection of extensions for [pi coding agent](https://github.com/badlogic/pi-mono). For the official repository, see [badlogic/pi-mono](https://github.com/badlogic/pi-mono).
 
 A collection of [pi coding agent](https://github.com/badlogic/pi-mono) extensions, packaged for `pi install`.
 
