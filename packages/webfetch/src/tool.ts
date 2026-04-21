@@ -1,6 +1,7 @@
 import { Type } from "@sinclair/typebox";
 import { join } from "node:path";
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { type ExtensionAPI, keyHint } from "@mariozechner/pi-coding-agent";
+import { Text } from "@mariozechner/pi-tui";
 import type { WebFetchConfig } from "./config.js";
 import { WebFetchCache } from "./cache.js";
 import { normalizeUrl } from "./normalize.js";
@@ -259,6 +260,74 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 				content: [{ type: "text", text: formatTextResult(output, entry.scripts) }],
 				details: output,
 			};
+		},
+
+		renderCall(args, theme, context) {
+			const text = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
+			let line = theme.fg("toolTitle", theme.bold("webfetch "));
+			line += theme.fg("accent", args.url ?? "");
+			if (args.script !== undefined) line += theme.fg("muted", ` · script=${args.script}`);
+			if (args.offset) line += theme.fg("dim", ` · offset=${args.offset}`);
+			text.setText(line);
+			return text;
+		},
+
+		renderResult(result, options, theme, context) {
+			const text = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
+
+			if (options.isPartial) {
+				text.setText(theme.fg("muted", "Fetching…"));
+				return text;
+			}
+
+			if (context.isError || !result.details) {
+				const raw = result.content.find((c) => c.type === "text")?.text ?? "";
+				text.setText(theme.fg("error", raw));
+				return text;
+			}
+
+			const details = result.details as TextOutput | BinaryOutput | RedirectOutput;
+
+			// Redirect
+			if ("redirect" in details) {
+				text.setText(
+					theme.fg("warning", `↪ REDIRECT ${details.status_code}: `) +
+					theme.fg("accent", details.redirect_url),
+				);
+				return text;
+			}
+
+			// Binary
+			if ("file_path" in details) {
+				text.setText(
+					theme.fg("success", "✓ ") +
+					theme.fg("muted", details.content_type) +
+					theme.fg("dim", ` → ${details.file_path}`),
+				);
+				return text;
+			}
+
+			// Text result
+			const allLines = details.content.split("\n");
+			const MAX_COLLAPSED = 10;
+			const maxLines = options.expanded ? allLines.length : MAX_COLLAPSED;
+			const displayLines = allLines.slice(0, maxLines);
+			const remaining = allLines.length - maxLines;
+
+			const header =
+				theme.fg("dim", details.url) +
+				(details.truncated
+					? theme.fg("muted", ` · ${details.returned_length.toLocaleString()} / ${details.total_length.toLocaleString()} chars`)
+					: theme.fg("muted", ` · ${details.total_length.toLocaleString()} chars`));
+
+			let body = "\n" + displayLines.map((l) => theme.fg("toolOutput", l)).join("\n");
+
+			if (remaining > 0) {
+				body += theme.fg("muted", `\n… (${remaining} more lines, `) + keyHint("app.tools.expand", "to expand") + theme.fg("muted", ")");
+			}
+
+			text.setText(header + body);
+			return text;
 		},
 	});
 }

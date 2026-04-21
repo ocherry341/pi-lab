@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@mariozechner/pi-coding-agent": "catalog:",
+    "@mariozechner/pi-tui": "catalog:",
     "@sinclair/typebox": "catalog:",
     "@types/mozilla__readability": "catalog:",
     "@types/node": "catalog:",
@@ -29,6 +30,7 @@
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "catalog:",
+    "@mariozechner/pi-tui": "catalog:",
     "@sinclair/typebox": "catalog:"
   },
   "dependencies": {

@@ -118,6 +118,9 @@ importers:
       '@mariozechner/pi-coding-agent':
         specifier: 'catalog:'
         version: 0.67.68(ws@8.20.0)(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: 'catalog:'
+        version: 0.67.68
       '@sinclair/typebox':
         specifier: 'catalog:'
         version: 0.34.49
