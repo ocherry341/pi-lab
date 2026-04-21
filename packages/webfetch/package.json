@@ -1,0 +1,40 @@
+{
+  "name": "@pi-lab/webfetch",
+  "version": "0.1.0",
+  "description": "WebFetch tool extension for pi coding agent",
+  "keywords": [
+    "pi-package"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "pi": {
+    "extensions": [
+      "./dist/index.mjs"
+    ]
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@mariozechner/pi-coding-agent": "catalog:",
+    "@sinclair/typebox": "catalog:",
+    "@types/mozilla__readability": "catalog:",
+    "@types/node": "catalog:",
+    "@types/turndown": "catalog:",
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "catalog:",
+    "@sinclair/typebox": "catalog:"
+  },
+  "dependencies": {
+    "@mozilla/readability": "catalog:",
+    "linkedom": "catalog:",
+    "lru-cache": "catalog:",
+    "turndown": "catalog:"
+  }
+}
