@@ -7,7 +7,7 @@ import { WebFetchCache } from "./cache.js";
 import { normalizeUrl } from "./normalize.js";
 import { fetchUrl } from "./fetch.js";
 import { processHtml, processPlainText } from "./content.js";
-import { refineContent } from "./refine.js";
+import type { InlineScript } from "./content.js";
 
 // ─── Output shapes ────────────────────────────────────────────────────────────
 
@@ -18,8 +18,6 @@ interface TextOutput {
 	offset: number;
 	returned_length: number;
 	url: string;
-	content_type: string;
-	refined?: boolean;
 }
 
 interface BinaryOutput {
@@ -34,6 +32,68 @@ interface RedirectOutput {
 	redirect_url: string;
 	status_code: number;
 	message: string;
+}
+
+// ─── Text formatters ──────────────────────────────────────────────────────────
+
+function formatScriptIndex(scripts: InlineScript[]): string {
+	if (scripts.length === 0) return "";
+	const width = String(scripts.reduce((m, s) => Math.max(m, s.length), 0)).length;
+	const lines = scripts.map(
+		(s) => `  [${s.index}] ${String(s.length).padStart(width)} chars  ${s.preview}`,
+	);
+	return [
+		"",
+		`Inline scripts (${scripts.length}, call webfetch with script=N to read full content):`,
+		...lines,
+	].join("\n");
+}
+
+function formatTextResult(output: TextOutput, scripts: InlineScript[]): string {
+	const lines: string[] = [];
+	lines.push(`URL: ${output.url}`);
+	if (output.truncated) {
+		const next = output.offset + output.returned_length;
+		lines.push(
+			`Offset: ${output.offset} / ${output.total_length} chars — truncated, call again with offset=${next}`,
+		);
+	} else {
+		lines.push(`Length: ${output.total_length} chars`);
+	}
+	lines.push("", "---", "", output.content);
+	const scriptIndex = formatScriptIndex(scripts);
+	if (scriptIndex) lines.push(scriptIndex);
+	return lines.join("\n");
+}
+
+function formatScriptResult(url: string, scriptIndex: number, output: TextOutput): string {
+	const lines: string[] = [];
+	lines.push(`URL: ${url} — script ${scriptIndex}`);
+	if (output.truncated) {
+		const next = output.offset + output.returned_length;
+		lines.push(
+			`Offset: ${output.offset} / ${output.total_length} chars — truncated, call again with offset=${next}`,
+		);
+	} else {
+		lines.push(`Length: ${output.total_length} chars`);
+	}
+	lines.push("", "---", "", output.content);
+	return lines.join("\n");
+}
+
+function formatBinaryResult(output: BinaryOutput): string {
+	return [
+		`BINARY FILE: ${output.file_path}`,
+		`Content-Type: ${output.content_type}`,
+		`URL: ${output.url}`,
+	].join("\n");
+}
+
+function formatRedirectResult(output: RedirectOutput): string {
+	return [
+		`REDIRECT ${output.status_code}: ${output.original_url} → ${output.redirect_url}`,
+		output.message,
+	].join("\n");
 }
 
 // ─── Tool registration ────────────────────────────────────────────────────────
@@ -55,27 +115,27 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 		label: "Web Fetch",
 		description: [
 			"Fetch content from a URL and return it as Markdown text.",
-			"Handles HTML extraction via Mozilla Readability, pagination for large pages,",
-			"and AI-assisted refinement when a prompt is provided for very large content.",
+			"Handles HTML extraction via Mozilla Readability and pagination for large pages.",
+			"Inline scripts are listed in an index at the end — use the `script` parameter to read a specific one.",
 			"Non-text content (images, PDFs, etc.) is saved to a local file and the path is returned.",
 			"Cross-domain redirects are reported back so you can decide whether to follow them.",
 		].join(" "),
 		promptSnippet: "Fetch and read web page content from a URL",
 		promptGuidelines: [
 			"Use webfetch to retrieve content from URLs instead of suggesting the user open a browser.",
-			"Pass a focused `prompt` parameter when fetching documentation or articles to extract only relevant sections.",
 			"For paginated results, increment `offset` by `returned_length` and call webfetch again until `truncated` is false.",
+			"If the page has inline scripts listed at the end, use `script=N` to read one if it might contain relevant data.",
 			"If webfetch returns a redirect result, call it again with the `redirect_url`.",
 		],
 		parameters: Type.Object({
 			url: Type.String({
 				description: "The URL to fetch.",
 			}),
-			prompt: Type.Optional(
-				Type.String({
+			script: Type.Optional(
+				Type.Number({
 					description:
-						"When content exceeds the refinement threshold (default 50 000 chars), " +
-						"this text guides the small model to extract only the relevant information.",
+						"Index of an inline script to read (from the script index at the end of a previous response). " +
+						"Supports the same `offset` and `max_length` pagination as normal page content.",
 				}),
 			),
 			offset: Type.Optional(
@@ -91,7 +151,7 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 		}),
 
 		async execute(_toolCallId, params, signal, onUpdate, ctx) {
-			const { url, prompt, offset = 0, max_length } = params;
+			const { url, script: scriptIndex, offset = 0, max_length } = params;
 			const maxLength = max_length ?? config.maxPageLength;
 
 			// ── Normalize URL ───────────────────────────────────────────────
@@ -105,19 +165,18 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 			// Temp directory for binary downloads
 			const tempDir = join(ctx.cwd, ".pi", "pi-lab", "webfetch", "tmp");
 
-			onUpdate?.({
-				content: [{ type: "text", text: `Fetching ${normalizedUrl}…` }],
-				details: {},
-			});
+			// ── Check cache ─────────────────────────────────────────────────
+			let entry = cache.get(normalizedUrl);
 
-			// ── Check cache (keyed on normalized URL) ───────────────────────
-			let markdown = cache.get(normalizedUrl);
+			if (!entry) {
+				onUpdate?.({
+					content: [{ type: "text", text: `Fetching ${normalizedUrl}…` }],
+					details: {},
+				});
 
-			if (!markdown) {
-				// ── Fetch ────────────────────────────────────────────────────
 				const result = await fetchUrl(normalizedUrl, blocklist, tempDir, signal);
 
-				// ── Redirect ─────────────────────────────────────────────────
+				// ── Redirect ──────────────────────────────────────────────────
 				if (result.type === "redirect") {
 					const output: RedirectOutput = {
 						redirect: true,
@@ -129,12 +188,12 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 							"Call webfetch again with `redirect_url` to fetch the content.",
 					};
 					return {
-						content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
+						content: [{ type: "text", text: formatRedirectResult(output) }],
 						details: output,
 					};
 				}
 
-				// ── Binary ───────────────────────────────────────────────────
+				// ── Binary ────────────────────────────────────────────────────
 				if (result.type === "binary") {
 					const output: BinaryOutput = {
 						file_path: result.filePath,
@@ -142,12 +201,12 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 						url: result.url,
 					};
 					return {
-						content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
+						content: [{ type: "text", text: formatBinaryResult(output) }],
 						details: output,
 					};
 				}
 
-				// ── Process text content ─────────────────────────────────────
+				// ── Process text content ──────────────────────────────────────
 				onUpdate?.({
 					content: [{ type: "text", text: "Processing content…" }],
 					details: {},
@@ -155,51 +214,42 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 
 				if (result.contentType === "text/html") {
 					const processed = await processHtml(result.content, normalizedUrl);
-					markdown = processed.markdown;
+					entry = { markdown: processed.markdown, scripts: processed.scripts };
 				} else {
-					markdown = processPlainText(result.content);
+					entry = { markdown: processPlainText(result.content), scripts: [] };
 				}
 
-				// Store in cache (full processed Markdown, before pagination)
-				cache.set(normalizedUrl, markdown);
+				cache.set(normalizedUrl, entry);
 			}
 
-			// ── Refinement (content > threshold AND prompt provided) ─────────
-			if (markdown.length > config.refinementThreshold && prompt) {
-				onUpdate?.({
-					content: [
-						{
-							type: "text",
-							text: `Content is large (${markdown.length.toLocaleString()} chars), refining with AI…`,
-						},
-					],
-					details: {},
-				});
-
-				const refined = await refineContent(markdown, prompt, signal);
-
-				if (refined) {
-					const output: TextOutput = {
-						content: refined,
-						truncated: false,
-						total_length: refined.length,
-						offset: 0,
-						returned_length: refined.length,
-						url: normalizedUrl,
-						content_type: "text/markdown",
-						refined: true,
-					};
-					return {
-						content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
-						details: output,
-					};
+			// ── Script read ─────────────────────────────────────────────────
+			if (scriptIndex !== undefined) {
+				const script = entry.scripts.find((s) => s.index === scriptIndex);
+				if (!script) {
+					throw new Error(
+						`Script ${scriptIndex} not found. Available indices: ${entry.scripts.map((s) => s.index).join(", ") || "none"}`,
+					);
 				}
-				// Fall through to pagination if refinement fails/unavailable
+				const total = script.content.length;
+				const slice = script.content.slice(offset, offset + maxLength);
+				const truncated = offset + maxLength < total;
+				const output: TextOutput = {
+					content: slice,
+					truncated,
+					total_length: total,
+					offset,
+					returned_length: slice.length,
+					url: normalizedUrl,
+				};
+				return {
+					content: [{ type: "text", text: formatScriptResult(normalizedUrl, scriptIndex, output) }],
+					details: output,
+				};
 			}
 
 			// ── Pagination ───────────────────────────────────────────────────
-			const totalLength = markdown.length;
-			const slice = markdown.slice(offset, offset + maxLength);
+			const totalLength = entry.markdown.length;
+			const slice = entry.markdown.slice(offset, offset + maxLength);
 			const truncated = offset + maxLength < totalLength;
 
 			const output: TextOutput = {
@@ -209,11 +259,10 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 				offset,
 				returned_length: slice.length,
 				url: normalizedUrl,
-				content_type: "text/markdown",
 			};
 
 			return {
-				content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
+				content: [{ type: "text", text: formatTextResult(output, entry.scripts) }],
 				details: output,
 			};
 		},

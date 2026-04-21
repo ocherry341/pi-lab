@@ -12,13 +12,6 @@ export interface CacheConfig {
 
 export interface WebFetchConfig {
 	/**
-	 * Content length threshold (chars) above which LLM refinement is triggered.
-	 * Set to Infinity to disable refinement, 0 to always refine.
-	 * Default: 50000
-	 */
-	refinementThreshold: number;
-
-	/**
 	 * Default maximum chars returned per paginated page.
 	 * Default: 20000
 	 */
@@ -29,7 +22,6 @@ export interface WebFetchConfig {
 }
 
 export const DEFAULT_CONFIG: WebFetchConfig = {
-	refinementThreshold: 50000,
 	maxPageLength: 20000,
 	blocklist: {
 		enabled: true,
@@ -44,7 +36,6 @@ export const DEFAULT_CONFIG: WebFetchConfig = {
 export function mergeConfig(partial?: Partial<WebFetchConfig>): WebFetchConfig {
 	if (!partial) return DEFAULT_CONFIG;
 	return {
-		refinementThreshold: partial.refinementThreshold ?? DEFAULT_CONFIG.refinementThreshold,
 		maxPageLength: partial.maxPageLength ?? DEFAULT_CONFIG.maxPageLength,
 		blocklist: { ...DEFAULT_CONFIG.blocklist, ...partial.blocklist },
 		cache: { ...DEFAULT_CONFIG.cache, ...partial.cache },

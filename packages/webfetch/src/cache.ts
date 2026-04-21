@@ -1,25 +1,36 @@
 import { LRUCache } from "lru-cache";
 import type { CacheConfig } from "./config.js";
+import type { InlineScript } from "./content.js";
+
+export interface CacheEntry {
+	markdown: string;
+	scripts: InlineScript[];
+}
 
 export class WebFetchCache {
-	private cache: LRUCache<string, string>;
+	private cache: LRUCache<string, CacheEntry>;
 
 	constructor(config: CacheConfig) {
-		this.cache = new LRUCache<string, string>({
-			// Byte-based size limit
+		this.cache = new LRUCache<string, CacheEntry>({
 			maxSize: config.maxSizeBytes,
-			sizeCalculation: (value: string) => Buffer.byteLength(value, "utf8"),
-			// TTL per entry
+			sizeCalculation: (value: CacheEntry) => {
+				const mdBytes = Buffer.byteLength(value.markdown, "utf8");
+				const scriptBytes = value.scripts.reduce(
+					(sum, s) => sum + Buffer.byteLength(s.content, "utf8"),
+					0,
+				);
+				return mdBytes + scriptBytes;
+			},
 			ttl: config.ttlMs,
 			allowStale: false,
 		});
 	}
 
-	get(key: string): string | undefined {
+	get(key: string): CacheEntry | undefined {
 		return this.cache.get(key);
 	}
 
-	set(key: string, value: string): void {
+	set(key: string, value: CacheEntry): void {
 		this.cache.set(key, value);
 	}
 
