@@ -1,0 +1,45 @@
+{
+  "name": "@pi-lab/env",
+  "version": "0.1.0",
+  "description": "Global environment loader extension for pi coding agent",
+  "keywords": [
+    "pi-package"
+  ],
+  "license": "MIT",
+  "author": "ocherry341",
+  "homepage": "https://github.com/ocherry341/pi-lab/tree/main/packages/env",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ocherry341/pi-lab.git",
+    "directory": "packages/env"
+  },
+  "bugs": {
+    "url": "https://github.com/ocherry341/pi-lab/issues"
+  },
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "pi": {
+    "extensions": [
+      "./dist/index.mjs"
+    ]
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "tsx --test src/**/*.test.ts"
+  },
+  "devDependencies": {
+    "@mariozechner/pi-coding-agent": "catalog:",
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "tsx": "catalog:"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "catalog:"
+  },
+  "dependencies": {
+    "@dotenvx/dotenvx": "catalog:"
+  }
+}

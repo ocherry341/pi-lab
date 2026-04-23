@@ -6,11 +6,12 @@ A collection of [pi coding agent](https://github.com/badlogic/pi-mono) extension
 
 ## Packages
 
-| Package                                           | Description                                                                                    |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| [@pi-lab/permissions](./packages/permissions)     | Permission system — enforce allow / deny / ask rules on tool calls                             |
-| [@pi-lab/input-history](./packages/input-history) | Cross-session input history — `↑` recalls inputs across all sessions in the same project       |
-| [@pi-lab/webfetch](./packages/webfetch)           | Fetch any URL and get back clean Markdown, with pagination, inline script index, and LRU cache |
+| Package                                           | Description                                                        |
+| ------------------------------------------------- | ------------------------------------------------------------------ |
+| [@pi-lab/permissions](./packages/permissions)     | Permission system — enforce allow / deny / ask rules on tool calls |
+| [@pi-lab/webfetch](./packages/webfetch)           | Fetch URL and get clean Markdown                                   |
+| [@pi-lab/env](./packages/env)                     | Load `.env` into pi sessions                                       |
+| [@pi-lab/input-history](./packages/input-history) | `↑` recalls inputs across all sessions in the same project         |
 
 ## Install
 
