@@ -1,5 +1,4 @@
 import { Type } from "@sinclair/typebox";
-import { join } from "node:path";
 import { type ExtensionAPI, keyHint } from "@mariozechner/pi-coding-agent";
 import { Text } from "@mariozechner/pi-tui";
 import type { WebFetchConfig } from "./config.js";
@@ -8,6 +7,7 @@ import { normalizeUrl } from "./normalize.js";
 import { fetchUrl } from "./fetch.js";
 import { processHtml, processPlainText } from "./content.js";
 import type { InlineScript } from "./content.js";
+import { getBinaryTempDir } from "./paths.js";
 
 // ─── Output shapes ────────────────────────────────────────────────────────────
 
@@ -158,7 +158,7 @@ export function registerWebFetchTool(pi: ExtensionAPI, config: WebFetchConfig): 
 			}
 
 			// Temp directory for binary downloads
-			const tempDir = join(ctx.cwd, ".pi", "pi-lab", "webfetch", "tmp");
+			const tempDir = getBinaryTempDir();
 
 			// ── Check cache ─────────────────────────────────────────────────
 			let entry = cache.get(normalizedUrl);

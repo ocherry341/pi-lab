@@ -14,5 +14,5 @@ pi install npm:@pi-lab/webfetch
 - **Pagination** — large pages are sliced into chunks; the model reads page by page using `offset`.
 - **Inline script index** — `<script>` tags are stripped from the Markdown body but listed as a numbered index at the end. The model can read any of them with `script=N`.
 - **Redirect handling** — same-domain redirects are followed automatically (up to 10 hops); cross-domain redirects are surfaced to the model so it can decide whether to follow.
-- **Binary downloads** — non-text responses (PDFs, images, etc.) are saved to `.pi/pi-lab/webfetch/tmp/` and the file path is returned.
+- **Binary downloads** — non-text responses (PDFs, images, etc.) are saved to `~/.pi/agent/pi-lab/tmp/webfetch/` and the file path is returned.
 - **LRU cache** — processed Markdown is cached in memory so paginating the same URL doesn't re-fetch.
